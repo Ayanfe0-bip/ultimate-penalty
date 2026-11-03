@@ -8,6 +8,7 @@
   <title>ULTIMATE PENALTY</title>
   <link rel="stylesheet" href="/src/style.css">
 </head>
+
 <body>
   <div id="app">
 
@@ -28,7 +29,6 @@
 
     <main>
 
-      <!-- START SCREEN -->
       <section id="start-screen" class="screen start-screen">
         <div class="hero-content">
           <span class="eyebrow">THE ULTIMATE FOOTBALL CHALLENGE</span>
@@ -42,10 +42,12 @@
               <strong>05</strong>
               <span>SHOTS</span>
             </div>
+
             <div>
               <strong>01</strong>
               <span>GOALKEEPER</span>
             </div>
+
             <div>
               <strong>∞</strong>
               <span>GLORY</span>
@@ -60,39 +62,35 @@
         </div>
       </section>
 
-      <!-- FULL SCREEN GAME -->
+      <!-- FULL-SCREEN GAMEPLAY -->
       <section id="game-screen" class="screen game-screen hidden">
 
-        <div class="immersive-hud">
-
-          <div class="hud-brand">
-            ULTIMATE <span>PENALTY</span>
-          </div>
-
-          <div class="hud-score">
-
-            <div>
-              <small>SCORE</small>
-              <strong id="score">0</strong>
-            </div>
-
-            <div>
-              <small>SHOTS LEFT</small>
-              <strong id="attempts">5</strong>
-            </div>
-
-            <div class="shot-indicators" id="shot-indicators">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-
-          </div>
-        </div>
-
         <div id="game-container">
+
+          <!-- FLOATING SCOREBOARD -->
+          <div class="immersive-hud">
+            <div class="hud-score">
+
+              <div>
+                <small>SCORE</small>
+                <strong id="score">0</strong>
+              </div>
+
+              <div>
+                <small>SHOTS LEFT</small>
+                <strong id="attempts">5</strong>
+              </div>
+
+              <div class="shot-indicators" id="shot-indicators">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
+            </div>
+          </div>
 
           <div class="loading-message" id="loading-message">
             PREPARING THE STADIUM...
@@ -106,7 +104,7 @@
 
       </section>
 
-      <!-- RESULTS SCREEN -->
+      <!-- RESULTS -->
       <section id="result-screen" class="screen result-screen hidden">
 
         <span class="eyebrow">SHOOTOUT COMPLETE</span>
@@ -136,6 +134,5 @@
   </div>
 
   <script type="module" src="/src/main.js"></script>
-
 </body>
-</html>
+  </html>
