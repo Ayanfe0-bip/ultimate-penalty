@@ -3,7 +3,6 @@ import * as THREE from 'three';
 // ==========================================
 // ULTIMATE PENALTY
 // Ayanfe Innovation Labs Limited
-// One Ball. One Shot. One Glory.
 // ==========================================
 
 const $ = id => document.getElementById(id);
@@ -30,12 +29,12 @@ let keeperArms = [];
 let score = 0;
 let attempts = 5;
 let power = 60;
-let aim = 'center';
 
 let busy = false;
 let gameStarted = false;
-
 let gesture = null;
+let animationStarted = false;
+
 let bestScore = Number(
   localStorage.getItem('ultimatePenaltyBest') || 0
 );
@@ -57,7 +56,7 @@ function mat(color, options = {}) {
 }
 
 // ==========================================
-// INITIALIZE GAME
+// CREATE GAME
 // ==========================================
 
 function createScene() {
@@ -96,13 +95,13 @@ function createScene() {
 
   container.appendChild(renderer.domElement);
 
-  const ambient = new THREE.HemisphereLight(
-    0xffffff,
-    0x1a3320,
-    2
+  scene.add(
+    new THREE.HemisphereLight(
+      0xffffff,
+      0x1a3320,
+      2
+    )
   );
-
-  scene.add(ambient);
 
   const mainLight = new THREE.DirectionalLight(
     0xffffff,
@@ -111,7 +110,6 @@ function createScene() {
 
   mainLight.position.set(-5, 12, 8);
   mainLight.castShadow = true;
-
   scene.add(mainLight);
 
   const stadiumLight = new THREE.PointLight(
@@ -136,7 +134,11 @@ function createScene() {
   }
 
   setupGestures();
-  animate();
+
+  if (!animationStarted) {
+    animationStarted = true;
+    animate();
+  }
 }
 
 // ==========================================
@@ -156,11 +158,7 @@ function createStadium() {
     for (let i = 0; i < 35; i++) {
       const seat = new THREE.Mesh(
         new THREE.BoxGeometry(0.55, 0.35, 0.5),
-        mat(
-          i % 3 === 0
-            ? 0x526455
-            : 0x283a2e
-        )
+        mat(i % 3 === 0 ? 0x526455 : 0x283a2e)
       );
 
       seat.position.set(
@@ -175,12 +173,7 @@ function createStadium() {
 
   [-12, 12].forEach(x => {
     const pole = new THREE.Mesh(
-      new THREE.CylinderGeometry(
-        0.12,
-        0.18,
-        10,
-        8
-      ),
+      new THREE.CylinderGeometry(0.12, 0.18, 10, 8),
       mat(0x535c55)
     );
 
@@ -189,9 +182,7 @@ function createStadium() {
 
     const lamp = new THREE.Mesh(
       new THREE.BoxGeometry(2, 0.5, 0.4),
-      new THREE.MeshBasicMaterial({
-        color: 0xffffff
-      })
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
 
     lamp.position.set(x, 10, -7);
@@ -212,26 +203,16 @@ function createPitch() {
   pitch.rotation.x = -Math.PI / 2;
   pitch.position.set(0, 0, -2);
   pitch.receiveShadow = true;
-
   scene.add(pitch);
 
   for (let i = 0; i < 8; i++) {
     const stripe = new THREE.Mesh(
       new THREE.PlaneGeometry(32, 2.2),
-      mat(
-        i % 2 === 0
-          ? 0x285b36
-          : 0x214b2e
-      )
+      mat(i % 2 === 0 ? 0x285b36 : 0x214b2e)
     );
 
     stripe.rotation.x = -Math.PI / 2;
-    stripe.position.set(
-      0,
-      0.01,
-      13 - i * 4.3
-    );
-
+    stripe.position.set(0, 0.01, 13 - i * 4.3);
     scene.add(stripe);
   }
 
@@ -242,36 +223,30 @@ function createPitch() {
 
   const spot = new THREE.Mesh(
     new THREE.CircleGeometry(0.09, 20),
-    new THREE.MeshBasicMaterial({
-      color: 0xffffff
-    })
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
   );
 
   spot.rotation.x = -Math.PI / 2;
   spot.position.set(0, 0.035, 7);
-
   scene.add(spot);
 }
 
 function addLine(x1, y1, z1, x2, y2, z2) {
-  const geometry = new THREE.BufferGeometry()
-    .setFromPoints([
-      new THREE.Vector3(x1, y1, z1),
-      new THREE.Vector3(x2, y2, z2)
-    ]);
+  const geometry = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(x1, y1, z1),
+    new THREE.Vector3(x2, y2, z2)
+  ]);
 
   scene.add(
     new THREE.Line(
       geometry,
-      new THREE.LineBasicMaterial({
-        color: 0xffffff
-      })
+      new THREE.LineBasicMaterial({ color: 0xffffff })
     )
   );
 }
 
 // ==========================================
-// GOAL
+// GOAL AND NET
 // ==========================================
 
 function createGoal() {
@@ -281,12 +256,7 @@ function createGoal() {
   });
 
   const left = new THREE.Mesh(
-    new THREE.CylinderGeometry(
-      0.09,
-      0.09,
-      3.5,
-      12
-    ),
+    new THREE.CylinderGeometry(0.09, 0.09, 3.5, 12),
     white
   );
 
@@ -295,7 +265,6 @@ function createGoal() {
 
   const right = left.clone();
   right.position.x = 3.7;
-
   scene.add(right);
 
   const crossbar = new THREE.Mesh(
@@ -313,60 +282,25 @@ function createGoal() {
   });
 
   for (let x = -3.6; x <= 3.6; x += 0.4) {
-    addNetLine(
-      x, 0.1, -5,
-      x, 3.4, -5,
-      netMaterial
-    );
-
-    addNetLine(
-      x, 3.4, -5,
-      x, 3.4, -7,
-      netMaterial
-    );
-
-    addNetLine(
-      x, 0.1, -5,
-      x, 0.1, -7,
-      netMaterial
-    );
+    addNetLine(x, 0.1, -5, x, 3.4, -5, netMaterial);
+    addNetLine(x, 3.4, -5, x, 3.4, -7, netMaterial);
+    addNetLine(x, 0.1, -5, x, 0.1, -7, netMaterial);
   }
 
   for (let y = 0.3; y <= 3.4; y += 0.4) {
-    addNetLine(
-      -3.6, y, -5,
-      3.6, y, -5,
-      netMaterial
-    );
-
-    addNetLine(
-      -3.6, y, -5,
-      -3.6, y, -7,
-      netMaterial
-    );
-
-    addNetLine(
-      3.6, y, -5,
-      3.6, y, -7,
-      netMaterial
-    );
+    addNetLine(-3.6, y, -5, 3.6, y, -5, netMaterial);
+    addNetLine(-3.6, y, -5, -3.6, y, -7, netMaterial);
+    addNetLine(3.6, y, -5, 3.6, y, -7, netMaterial);
   }
 }
 
-function addNetLine(
-  x1, y1, z1,
-  x2, y2, z2,
-  material
-) {
-  const geometry = new THREE.BufferGeometry()
-    .setFromPoints([
-      new THREE.Vector3(x1, y1, z1),
-      new THREE.Vector3(x2, y2, z2)
-    ]);
+function addNetLine(x1, y1, z1, x2, y2, z2, material) {
+  const geometry = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(x1, y1, z1),
+    new THREE.Vector3(x2, y2, z2)
+  ]);
 
-  scene.add(
-    new THREE.Line(geometry, material)
-  );
+  scene.add(new THREE.Line(geometry, material));
 }
 
 // ==========================================
@@ -413,12 +347,7 @@ function createGoalkeeper() {
       shirt
     );
 
-    arm.position.set(
-      side * 0.65,
-      1.85,
-      0
-    );
-
+    arm.position.set(side * 0.65, 1.85, 0);
     arm.rotation.z = side * -0.25;
 
     goalkeeper.add(arm);
@@ -429,12 +358,7 @@ function createGoalkeeper() {
       gloves
     );
 
-    glove.position.set(
-      side * 0.83,
-      1.35,
-      0
-    );
-
+    glove.position.set(side * 0.83, 1.35, 0);
     goalkeeper.add(glove);
   });
 
@@ -444,21 +368,14 @@ function createGoalkeeper() {
       shorts
     );
 
-    leg.position.set(
-      side * 0.23,
-      0.4,
-      0
-    );
-
+    leg.position.set(side * 0.23, 0.4, 0);
     goalkeeper.add(leg);
   });
 
   goalkeeper.position.set(0, 0, -4.35);
 
   goalkeeper.traverse(object => {
-    if (object.isMesh) {
-      object.castShadow = true;
-    }
+    if (object.isMesh) object.castShadow = true;
   });
 
   scene.add(goalkeeper);
@@ -469,16 +386,14 @@ function createGoalkeeper() {
 // ==========================================
 
 function createBall() {
-  const ballGroup = new THREE.Group();
+  ball = new THREE.Group();
 
   const ballMesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.28, 32, 32),
-    mat(0xf2f1e9, {
-      roughness: 0.65
-    })
+    mat(0xf2f1e9, { roughness: 0.65 })
   );
 
-  ballGroup.add(ballMesh);
+  ball.add(ballMesh);
 
   for (let i = 0; i < 5; i++) {
     const marking = new THREE.Mesh(
@@ -494,24 +409,20 @@ function createBall() {
       0.255
     );
 
-    ballGroup.add(marking);
+    ball.add(marking);
   }
-
-  ball = ballGroup;
 
   ball.position.set(0, 0.28, 7);
 
   ball.traverse(object => {
-    if (object.isMesh) {
-      object.castShadow = true;
-    }
+    if (object.isMesh) object.castShadow = true;
   });
 
   scene.add(ball);
 }
 
 // ==========================================
-// TOUCH AND SWIPE CONTROLS
+// TOUCH CONTROLS
 // ==========================================
 
 function setupGestures() {
@@ -521,24 +432,16 @@ function setupGestures() {
     if (busy || !gameStarted) return;
 
     const rect = canvas.getBoundingClientRect();
+    const projected = ball.position.clone();
+    projected.project(camera);
 
-    const ballScreen = ball.position.clone();
-    ballScreen.project(camera);
-
-    const ballX =
-      rect.left +
-      (ballScreen.x + 1) * rect.width / 2;
-
-    const ballY =
-      rect.top +
-      (1 - ballScreen.y) * rect.height / 2;
+    const ballX = rect.left + (projected.x + 1) * rect.width / 2;
+    const ballY = rect.top + (1 - projected.y) * rect.height / 2;
 
     const distance = Math.hypot(
       event.clientX - ballX,
       event.clientY - ballY
     );
-
-    // Begin interaction near the football.
 
     if (distance > 110) return;
 
@@ -551,7 +454,6 @@ function setupGestures() {
     };
 
     canvas.setPointerCapture(event.pointerId);
-
     event.preventDefault();
   });
 
@@ -560,31 +462,11 @@ function setupGestures() {
 
     gesture.currentX = event.clientX;
     gesture.currentY = event.clientY;
-
-    const dx =
-      gesture.currentX - gesture.startX;
-
-    const dy =
-      gesture.startY - gesture.currentY;
-
     gesture.moved = true;
 
-    // Horizontal swipe selects shooting direction.
+    const dy = gesture.startY - gesture.currentY;
 
-    if (dx < -20) {
-      aim = 'left';
-    } else if (dx > 20) {
-      aim = 'right';
-    } else {
-      aim = 'center';
-    }
-
-    // Upward swipe increases shooting power.
-
-    power = Math.max(
-      10,
-      Math.min(100, 45 + dy * 0.8)
-    );
+    power = Math.max(10, Math.min(100, 45 + dy * 0.8));
 
     event.preventDefault();
   });
@@ -592,23 +474,13 @@ function setupGestures() {
   canvas.addEventListener('pointerup', () => {
     if (!gesture) return;
 
-    const dx =
-      gesture.currentX - gesture.startX;
-
-    const dy =
-      gesture.startY - gesture.currentY;
-
+    const dx = gesture.currentX - gesture.startX;
+    const dy = gesture.startY - gesture.currentY;
     const moved = gesture.moved;
 
     gesture = null;
 
-    if (
-      moved &&
-      (
-        Math.abs(dx) > 15 ||
-        Math.abs(dy) > 15
-      )
-    ) {
+    if (moved && (Math.abs(dx) > 15 || Math.abs(dy) > 15)) {
       shootBall(dx, dy);
     }
   });
@@ -622,30 +494,52 @@ function setupGestures() {
 // START GAME
 // ==========================================
 
-startBtn.addEventListener('click', () => {
+async function enterFullscreen() {
+  try {
+    if (!document.fullscreenElement &&
+        document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    }
+  } catch (error) {
+    console.log('Fullscreen request was not available:', error);
+  }
+
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('portrait');
+    }
+  } catch (error) {
+    // Orientation lock is optional.
+  }
+}
+
+startBtn.addEventListener('click', async () => {
   startScreen.classList.add('hidden');
   gameScreen.classList.remove('hidden');
 
   document.body.classList.add('playing');
+
+  await enterFullscreen();
 
   if (!renderer) {
     createScene();
   }
 
   resetGame();
-
   resizeGame();
 });
+
+// ==========================================
+// RESET GAME
+// ==========================================
 
 function resetGame() {
   score = 0;
   attempts = 5;
   power = 60;
-  aim = 'center';
 
   busy = false;
   gameStarted = true;
-
   shotResults = [];
 
   scoreText.textContent = score;
@@ -660,37 +554,26 @@ function resetGame() {
   goalkeeper.rotation.set(0, 0, 0);
 
   keeperArms.forEach((arm, index) => {
-    arm.rotation.z =
-      index === 0 ? 0.25 : -0.25;
+    arm.rotation.z = index === 0 ? 0.25 : -0.25;
   });
 
   const hint = $('gesture-hint');
 
-  if (hint) {
-    hint.style.opacity = '1';
-  }
+  if (hint) hint.style.opacity = '1';
 }
 
 // ==========================================
-// SHOOTING
+// SHOOT BALL
 // ==========================================
 
 function shootBall(dx = 0, dy = 20) {
-  if (
-    busy ||
-    attempts <= 0 ||
-    !gameStarted
-  ) {
-    return;
-  }
+  if (busy || attempts <= 0 || !gameStarted) return;
 
   busy = true;
 
   const hint = $('gesture-hint');
 
-  if (hint) {
-    hint.style.opacity = '0';
-  }
+  if (hint) hint.style.opacity = '0';
 
   const targetX = Math.max(
     -3.25,
@@ -699,21 +582,14 @@ function shootBall(dx = 0, dy = 20) {
 
   const targetY = Math.max(
     0.3,
-    Math.min(
-      3.25,
-      0.6 + power / 100 * 2.6
-    )
+    Math.min(3.25, 0.6 + power / 100 * 2.6)
   );
 
-  // Goalkeeper reaction.
+  const keeperDirection = Math.random() < 0.5 ? -1 : 1;
 
-  const keeperDirection =
-    Math.random() < 0.5 ? -1 : 1;
-
-  const keeperTarget =
-    Math.random() < 0.65
-      ? targetX
-      : keeperDirection * 2.5;
+  const keeperTarget = Math.random() < 0.65
+    ? targetX
+    : keeperDirection * 2.5;
 
   const keeperCanReach =
     Math.abs(keeperTarget - targetX) < 1.1 &&
@@ -729,11 +605,7 @@ function shootBall(dx = 0, dy = 20) {
     -5.1
   );
 
-  const duration = Math.max(
-    550,
-    1150 - power * 5
-  );
-
+  const duration = Math.max(550, 1150 - power * 5);
   const startTime = performance.now();
 
   function animateShot(now) {
@@ -742,36 +614,26 @@ function shootBall(dx = 0, dy = 20) {
       1
     );
 
-    const eased =
-      progress * progress * (3 - 2 * progress);
+    const eased = progress * progress * (3 - 2 * progress);
 
-    ball.position.lerpVectors(
-      startPosition,
-      endPosition,
-      eased
-    );
+    ball.position.lerpVectors(startPosition, endPosition, eased);
 
-    ball.position.y +=
-      Math.sin(progress * Math.PI) * 0.7;
+    ball.position.y += Math.sin(progress * Math.PI) * 0.7;
 
     ball.rotation.x += 0.18;
     ball.rotation.z += 0.12;
 
-    // Goalkeeper dives.
+    goalkeeper.position.x = THREE.MathUtils.lerp(
+      0,
+      keeperTarget,
+      Math.min(progress * 1.7, 1)
+    );
 
-    goalkeeper.position.x =
-      THREE.MathUtils.lerp(
-        0,
-        keeperTarget,
-        Math.min(progress * 1.7, 1)
-      );
-
-    goalkeeper.rotation.z =
-      THREE.MathUtils.lerp(
-        0,
-        keeperTarget > 0 ? -0.5 : 0.5,
-        Math.min(progress * 1.5, 1)
-      );
+    goalkeeper.rotation.z = THREE.MathUtils.lerp(
+      0,
+      keeperTarget > 0 ? -0.5 : 0.5,
+      Math.min(progress * 1.5, 1)
+    );
 
     keeperArms.forEach((arm, index) => {
       arm.rotation.z = THREE.MathUtils.lerp(
@@ -816,8 +678,7 @@ function finishShot(scored) {
     goalkeeper.rotation.set(0, 0, 0);
 
     keeperArms.forEach((arm, index) => {
-      arm.rotation.z =
-        index === 0 ? 0.25 : -0.25;
+      arm.rotation.z = index === 0 ? 0.25 : -0.25;
     });
 
     if (attempts <= 0) {
@@ -829,7 +690,7 @@ function finishShot(scored) {
 }
 
 // ==========================================
-// SHOT INDICATORS
+// SCORE INDICATORS
 // ==========================================
 
 function updateIndicators() {
@@ -842,9 +703,7 @@ function updateIndicators() {
 
     if (index < shotResults.length) {
       indicator.classList.add(
-        shotResults[index]
-          ? 'scored'
-          : 'missed'
+        shotResults[index] ? 'scored' : 'missed'
       );
     }
   });
@@ -859,26 +718,26 @@ function showResults() {
   busy = false;
 
   gameScreen.classList.add('hidden');
-
   document.body.classList.remove('playing');
 
   resultScreen.classList.remove('hidden');
+
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
 
   $('final-score').textContent = score + ' / 5';
 
   if (score === 5) {
     $('result-title').textContent = 'LEGENDARY!';
-
     $('result-message').textContent =
       'Perfect performance! You are a penalty champion.';
   } else if (score >= 3) {
     $('result-title').textContent = 'GREAT JOB!';
-
     $('result-message').textContent =
       'Excellent performance. Keep improving!';
   } else {
     $('result-title').textContent = 'KEEP TRAINING!';
-
     $('result-message').textContent =
       'Every champion starts somewhere. Try again!';
   }
@@ -899,15 +758,15 @@ function showResults() {
 // RESTART
 // ==========================================
 
-restartBtn.addEventListener('click', () => {
+restartBtn.addEventListener('click', async () => {
   resultScreen.classList.add('hidden');
-
   gameScreen.classList.remove('hidden');
 
   document.body.classList.add('playing');
 
-  resetGame();
+  await enterFullscreen();
 
+  resetGame();
   resizeGame();
 });
 
@@ -924,7 +783,6 @@ function resizeGame() {
   if (!width || !height) return;
 
   camera.aspect = width / height;
-
   camera.updateProjectionMatrix();
 
   renderer.setSize(width, height);
@@ -932,12 +790,9 @@ function resizeGame() {
 
 window.addEventListener('resize', resizeGame);
 
-window.addEventListener(
-  'orientationchange',
-  () => {
-    setTimeout(resizeGame, 250);
-  }
-);
+window.addEventListener('orientationchange', () => {
+  setTimeout(resizeGame, 300);
+});
 
 // ==========================================
 // RENDER LOOP
@@ -953,4 +808,4 @@ function animate() {
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
   }
-    }
+}
