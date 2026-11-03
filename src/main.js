@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // ==========================================
 // ULTIMATE PENALTY
-// Ayanfe Innovation Labs Limited
+// Created by Ayanfe Innovation Labs Limited
 // ==========================================
 
 const $ = id => document.getElementById(id);
@@ -62,14 +62,14 @@ function mat(color, options = {}) {
 function createScene() {
   scene = new THREE.Scene();
 
-  scene.background = new THREE.Color(0x09140e);
-  scene.fog = new THREE.Fog(0x09140e, 25, 65);
+  scene.background = new THREE.Color(0x101b14);
+  scene.fog = new THREE.Fog(0x101b14, 35, 85);
 
   camera = new THREE.PerspectiveCamera(
     48,
     container.clientWidth / container.clientHeight,
     0.1,
-    100
+    120
   );
 
   camera.position.set(0, 5.5, 15);
@@ -114,14 +114,16 @@ function createScene() {
 
   const stadiumLight = new THREE.PointLight(
     0xe8f4e8,
-    80,
-    35
+    100,
+    45
   );
 
-  stadiumLight.position.set(0, 10, -5);
+  stadiumLight.position.set(0, 13, -8);
   scene.add(stadiumLight);
 
   createStadium();
+  createUpperStands();
+  createFloodlights();
   createPitch();
   createGoal();
   createGoalkeeper();
@@ -129,9 +131,7 @@ function createScene() {
 
   const loading = $('loading-message');
 
-  if (loading) {
-    loading.style.display = 'none';
-  }
+  if (loading) loading.style.display = 'none';
 
   setupGestures();
 
@@ -142,51 +142,253 @@ function createScene() {
 }
 
 // ==========================================
-// STADIUM
+// MAIN STADIUM STRUCTURE
 // ==========================================
 
 function createStadium() {
-  const stand = new THREE.Mesh(
-    new THREE.BoxGeometry(30, 5, 5),
-    mat(0x17251c)
+  // Large rear stadium wall
+  const rearWall = new THREE.Mesh(
+    new THREE.BoxGeometry(38, 16, 2),
+    mat(0x19271e)
   );
 
-  stand.position.set(0, 3, -12);
-  scene.add(stand);
+  rearWall.position.set(0, 6, -17);
+  scene.add(rearWall);
 
-  for (let row = 0; row < 5; row++) {
-    for (let i = 0; i < 35; i++) {
+  // Stadium upper roof
+  const roof = new THREE.Mesh(
+    new THREE.BoxGeometry(40, 0.8, 8),
+    mat(0x26342b)
+  );
+
+  roof.position.set(0, 14.2, -16);
+  scene.add(roof);
+
+  // Lower stand tiers
+  for (let row = 0; row < 8; row++) {
+    const tier = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        34 - row * 0.4,
+        0.35,
+        1.1
+      ),
+      mat(row % 2 ? 0x35463a : 0x26372d)
+    );
+
+    tier.position.set(
+      0,
+      2.8 + row * 0.85,
+      -14.5 - row * 0.2
+    );
+
+    scene.add(tier);
+  }
+
+  // Stadium seating sections
+  const seatColors = [
+    0x46584a,
+    0x344a3b,
+    0x687568,
+    0x293b30,
+    0x536052
+  ];
+
+  for (let row = 0; row < 12; row++) {
+    for (let col = 0; col < 52; col++) {
       const seat = new THREE.Mesh(
-        new THREE.BoxGeometry(0.55, 0.35, 0.5),
-        mat(i % 3 === 0 ? 0x526455 : 0x283a2e)
+        new THREE.BoxGeometry(0.42, 0.34, 0.38),
+        mat(seatColors[
+          Math.floor(Math.random() * seatColors.length)
+        ])
       );
 
       seat.position.set(
-        -9.5 + i * 0.57,
-        1.2 + row * 0.7,
-        -9.2 - row * 0.55
+        -12.5 + col * 0.49,
+        3.3 + row * 0.75,
+        -13.8 - row * 0.25
       );
 
       scene.add(seat);
     }
   }
 
-  [-12, 12].forEach(x => {
-    const pole = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.12, 0.18, 10, 8),
-      mat(0x535c55)
+  // Side stadium structures
+  [-1, 1].forEach(side => {
+    const sideStand = new THREE.Mesh(
+      new THREE.BoxGeometry(7, 13, 24),
+      mat(0x1c2d22)
     );
 
-    pole.position.set(x, 5, -7);
+    sideStand.position.set(
+      side * 17,
+      5.5,
+      -8
+    );
+
+    scene.add(sideStand);
+
+    for (let row = 0; row < 10; row++) {
+      for (let col = 0; col < 12; col++) {
+        const seat = new THREE.Mesh(
+          new THREE.BoxGeometry(0.4, 0.35, 0.4),
+          mat(
+            Math.random() > 0.5
+              ? 0x526453
+              : 0x293c30
+          )
+        );
+
+        seat.position.set(
+          side * (14 + col * 0.23),
+          1.5 + row * 0.85,
+          -17 + col * 0.15
+        );
+
+        scene.add(seat);
+      }
+    }
+  });
+
+  // Stadium advertising boards
+  [-1, 1].forEach(side => {
+    const board = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 1.1, 22),
+      mat(0x647467)
+    );
+
+    board.position.set(side * 14, 0.7, -8);
+    scene.add(board);
+  });
+}
+
+// ==========================================
+// UPPER STANDS AND CROWD
+// ==========================================
+
+function createUpperStands() {
+  // Upper seating balconies
+  for (let level = 0; level < 3; level++) {
+    const balcony = new THREE.Mesh(
+      new THREE.BoxGeometry(
+        38 - level * 2,
+        0.5,
+        2.2
+      ),
+      mat(0x3b4a3e)
+    );
+
+    balcony.position.set(
+      0,
+      9 + level * 1.8,
+      -18 - level * 0.7
+    );
+
+    scene.add(balcony);
+  }
+
+  // Small crowd details
+  const crowdColors = [
+    0x9a9b8b,
+    0x697a6b,
+    0xb0a58d,
+    0x455c51,
+    0x8a7869,
+    0xd1c7ad
+  ];
+
+  for (let i = 0; i < 450; i++) {
+    const crowd = new THREE.Mesh(
+      new THREE.SphereGeometry(
+        0.09 + Math.random() * 0.05,
+        6,
+        6
+      ),
+      mat(
+        crowdColors[
+          Math.floor(Math.random() * crowdColors.length)
+        ]
+      )
+    );
+
+    crowd.position.set(
+      -15 + Math.random() * 30,
+      3 + Math.random() * 10,
+      -15 - Math.random() * 3
+    );
+
+    scene.add(crowd);
+  }
+
+  // Upper stadium roof supports
+  [-1, 1].forEach(side => {
+    const support = new THREE.Mesh(
+      new THREE.BoxGeometry(0.35, 14, 0.35),
+      mat(0x69756b)
+    );
+
+    support.position.set(side * 18, 7, -14);
+    scene.add(support);
+  });
+}
+
+// ==========================================
+// FLOODLIGHTS
+// ==========================================
+
+function createFloodlights() {
+  [-1, 1].forEach(side => {
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(
+        0.12,
+        0.28,
+        18,
+        10
+      ),
+      mat(0x68736b)
+    );
+
+    pole.position.set(side * 15, 8, -10);
     scene.add(pole);
 
-    const lamp = new THREE.Mesh(
-      new THREE.BoxGeometry(2, 0.5, 0.4),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    const frame = new THREE.Mesh(
+      new THREE.BoxGeometry(3.5, 1.4, 0.5),
+      mat(0x879187)
     );
 
-    lamp.position.set(x, 10, -7);
-    scene.add(lamp);
+    frame.position.set(side * 15, 16.8, -10);
+    scene.add(frame);
+
+    for (let i = 0; i < 8; i++) {
+      const lamp = new THREE.Mesh(
+        new THREE.SphereGeometry(0.16, 8, 8),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff
+        })
+      );
+
+      lamp.position.set(
+        side * 15 - 1.35 + i * 0.38,
+        16.8,
+        -9.7
+      );
+
+      scene.add(lamp);
+    }
+
+    const light = new THREE.SpotLight(
+      0xffffff,
+      180,
+      65,
+      Math.PI / 4,
+      0.5,
+      1
+    );
+
+    light.position.set(side * 15, 16, -10);
+    light.target.position.set(0, 0, -2);
+
+    scene.add(light);
+    scene.add(light.target);
   });
 }
 
@@ -196,7 +398,7 @@ function createStadium() {
 
 function createPitch() {
   const pitch = new THREE.Mesh(
-    new THREE.PlaneGeometry(32, 35),
+    new THREE.PlaneGeometry(36, 40),
     mat(0x245234)
   );
 
@@ -205,14 +407,23 @@ function createPitch() {
   pitch.receiveShadow = true;
   scene.add(pitch);
 
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 10; i++) {
     const stripe = new THREE.Mesh(
-      new THREE.PlaneGeometry(32, 2.2),
-      mat(i % 2 === 0 ? 0x285b36 : 0x214b2e)
+      new THREE.PlaneGeometry(36, 2.2),
+      mat(
+        i % 2 === 0
+          ? 0x285b36
+          : 0x214b2e
+      )
     );
 
     stripe.rotation.x = -Math.PI / 2;
-    stripe.position.set(0, 0.01, 13 - i * 4.3);
+    stripe.position.set(
+      0,
+      0.01,
+      15 - i * 4.3
+    );
+
     scene.add(stripe);
   }
 
@@ -223,7 +434,9 @@ function createPitch() {
 
   const spot = new THREE.Mesh(
     new THREE.CircleGeometry(0.09, 20),
-    new THREE.MeshBasicMaterial({ color: 0xffffff })
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff
+    })
   );
 
   spot.rotation.x = -Math.PI / 2;
@@ -240,7 +453,9 @@ function addLine(x1, y1, z1, x2, y2, z2) {
   scene.add(
     new THREE.Line(
       geometry,
-      new THREE.LineBasicMaterial({ color: 0xffffff })
+      new THREE.LineBasicMaterial({
+        color: 0xffffff
+      })
     )
   );
 }
@@ -433,10 +648,14 @@ function setupGestures() {
 
     const rect = canvas.getBoundingClientRect();
     const projected = ball.position.clone();
+
     projected.project(camera);
 
-    const ballX = rect.left + (projected.x + 1) * rect.width / 2;
-    const ballY = rect.top + (1 - projected.y) * rect.height / 2;
+    const ballX =
+      rect.left + (projected.x + 1) * rect.width / 2;
+
+    const ballY =
+      rect.top + (1 - projected.y) * rect.height / 2;
 
     const distance = Math.hypot(
       event.clientX - ballX,
@@ -466,7 +685,10 @@ function setupGestures() {
 
     const dy = gesture.startY - gesture.currentY;
 
-    power = Math.max(10, Math.min(100, 45 + dy * 0.8));
+    power = Math.max(
+      10,
+      Math.min(100, 45 + dy * 0.8)
+    );
 
     event.preventDefault();
   });
@@ -480,7 +702,10 @@ function setupGestures() {
 
     gesture = null;
 
-    if (moved && (Math.abs(dx) > 15 || Math.abs(dy) > 15)) {
+    if (
+      moved &&
+      (Math.abs(dx) > 15 || Math.abs(dy) > 15)
+    ) {
       shootBall(dx, dy);
     }
   });
@@ -491,27 +716,33 @@ function setupGestures() {
 }
 
 // ==========================================
-// START GAME
+// FULL SCREEN
 // ==========================================
 
 async function enterFullscreen() {
   try {
-    if (!document.fullscreenElement &&
-        document.documentElement.requestFullscreen) {
+    if (
+      !document.fullscreenElement &&
+      document.documentElement.requestFullscreen
+    ) {
       await document.documentElement.requestFullscreen();
     }
   } catch (error) {
-    console.log('Fullscreen request was not available:', error);
+    console.log('Fullscreen unavailable:', error);
   }
 
   try {
-    if (screen.orientation && screen.orientation.lock) {
+    if (screen.orientation?.lock) {
       await screen.orientation.lock('portrait');
     }
   } catch (error) {
-    // Orientation lock is optional.
+    // Optional on some mobile browsers.
   }
 }
+
+// ==========================================
+// START GAME
+// ==========================================
 
 startBtn.addEventListener('click', async () => {
   startScreen.classList.add('hidden');
@@ -585,11 +816,13 @@ function shootBall(dx = 0, dy = 20) {
     Math.min(3.25, 0.6 + power / 100 * 2.6)
   );
 
-  const keeperDirection = Math.random() < 0.5 ? -1 : 1;
+  const keeperDirection =
+    Math.random() < 0.5 ? -1 : 1;
 
-  const keeperTarget = Math.random() < 0.65
-    ? targetX
-    : keeperDirection * 2.5;
+  const keeperTarget =
+    Math.random() < 0.65
+      ? targetX
+      : keeperDirection * 2.5;
 
   const keeperCanReach =
     Math.abs(keeperTarget - targetX) < 1.1 &&
@@ -614,9 +847,14 @@ function shootBall(dx = 0, dy = 20) {
       1
     );
 
-    const eased = progress * progress * (3 - 2 * progress);
+    const eased =
+      progress * progress * (3 - 2 * progress);
 
-    ball.position.lerpVectors(startPosition, endPosition, eased);
+    ball.position.lerpVectors(
+      startPosition,
+      endPosition,
+      eased
+    );
 
     ball.position.y += Math.sin(progress * Math.PI) * 0.7;
 
@@ -737,7 +975,7 @@ function showResults() {
     $('result-message').textContent =
       'Excellent performance. Keep improving!';
   } else {
-    $('result-title').textContent = 'KEEP TRAINING!';
+      $('result-title').textContent = 'KEEP TRAINING!';
     $('result-message').textContent =
       'Every champion starts somewhere. Try again!';
   }
