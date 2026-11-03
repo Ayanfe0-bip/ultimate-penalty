@@ -1,13 +1,16 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07110d">
   <meta name="description" content="ULTIMATE PENALTY - One Ball. One Shot. One Glory.">
   <title>ULTIMATE PENALTY</title>
   <link rel="stylesheet" href="/src/style.css">
-</head><body>
+</head>
+<body>
   <div id="app">
+
     <header class="topbar">
       <div class="brand">
         <span class="brand-icon">⚽</span>
@@ -15,122 +18,124 @@
           <h1>ULTIMATE <span>PENALTY</span></h1>
           <p>ONE BALL. ONE SHOT. ONE GLORY.</p>
         </div>
-      </div>  <div class="top-score">
-    <span>BEST SCORE</span>
-    <strong id="best-score">0</strong>
+      </div>
+
+      <div class="top-score">
+        <span>BEST SCORE</span>
+        <strong id="best-score">0</strong>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- START SCREEN -->
+      <section id="start-screen" class="screen start-screen">
+        <div class="hero-content">
+          <span class="eyebrow">THE ULTIMATE FOOTBALL CHALLENGE</span>
+
+          <h2>ARE YOU<br><span>THE CHAMPION?</span></h2>
+
+          <p>Five shots. One goalkeeper. Prove your penalty skills.</p>
+
+          <div class="game-stats">
+            <div>
+              <strong>05</strong>
+              <span>SHOTS</span>
+            </div>
+            <div>
+              <strong>01</strong>
+              <span>GOALKEEPER</span>
+            </div>
+            <div>
+              <strong>∞</strong>
+              <span>GLORY</span>
+            </div>
+          </div>
+
+          <button id="start-btn" class="primary-btn">
+            START GAME <span>→</span>
+          </button>
+
+          <p class="small-note">READY TO TAKE YOUR SHOT?</p>
+        </div>
+      </section>
+
+      <!-- FULL SCREEN GAME -->
+      <section id="game-screen" class="screen game-screen hidden">
+
+        <div class="immersive-hud">
+
+          <div class="hud-brand">
+            ULTIMATE <span>PENALTY</span>
+          </div>
+
+          <div class="hud-score">
+
+            <div>
+              <small>SCORE</small>
+              <strong id="score">0</strong>
+            </div>
+
+            <div>
+              <small>SHOTS LEFT</small>
+              <strong id="attempts">5</strong>
+            </div>
+
+            <div class="shot-indicators" id="shot-indicators">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="game-container">
+
+          <div class="loading-message" id="loading-message">
+            PREPARING THE STADIUM...
+          </div>
+
+          <div class="gesture-hint" id="gesture-hint">
+            TOUCH THE BALL · SWIPE TO AIM · RELEASE TO SHOOT
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- RESULTS SCREEN -->
+      <section id="result-screen" class="screen result-screen hidden">
+
+        <span class="eyebrow">SHOOTOUT COMPLETE</span>
+
+        <h2 id="result-title">FULL TIME!</h2>
+
+        <p id="result-message">Great effort!</p>
+
+        <div class="final-score">
+          <span>FINAL SCORE</span>
+          <strong id="final-score">0 / 5</strong>
+        </div>
+
+        <button id="restart-btn" class="primary-btn">
+          PLAY AGAIN <span>↻</span>
+        </button>
+
+      </section>
+
+    </main>
+
+    <footer>
+      <span>ULTIMATE PENALTY</span>
+      <span>CREATED BY AYANFE INNOVATION LABS LIMITED</span>
+    </footer>
+
   </div>
-</header>
 
-<main>
-  <section id="start-screen" class="screen start-screen">
-    <div class="hero-content">
-      <span class="eyebrow">THE ULTIMATE FOOTBALL CHALLENGE</span>
-      <h2>ARE YOU<br><span>THE CHAMPION?</span></h2>
-      <p>Five shots. One goalkeeper. Prove your penalty skills.</p>
+  <script type="module" src="/src/main.js"></script>
 
-      <div class="game-stats">
-        <div>
-          <strong>05</strong>
-          <span>SHOTS</span>
-        </div>
-        <div>
-          <strong>01</strong>
-          <span>GOALKEEPER</span>
-        </div>
-        <div>
-          <strong>∞</strong>
-          <span>GLORY</span>
-        </div>
-      </div>
-
-      <button id="start-btn" class="primary-btn">
-        START GAME <span>→</span>
-      </button>
-
-      <p class="small-note">READY TO TAKE YOUR SHOT?</p>
-    </div>
-  </section>
-
-  <section id="game-screen" class="screen game-screen hidden">
-    <div class="game-header">
-      <div>
-        <span class="label">PENALTY SHOOTOUT</span>
-        <h2>TAKE YOUR SHOT</h2>
-      </div>
-      <div class="attempt-counter">
-        <span>ATTEMPTS</span>
-        <strong id="attempts">5</strong>
-      </div>
-    </div>
-
-    <div class="scoreboard">
-      <div>
-        <span>YOUR SCORE</span>
-        <strong id="score">0</strong>
-      </div>
-      <div class="shot-indicators" id="shot-indicators">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-
-    <div id="game-container">
-      <div class="loading-message" id="loading-message">
-        PREPARING THE STADIUM...
-      </div>
-    </div>
-
-    <div class="controls">
-      <div class="control-heading">
-        <span>AIM YOUR SHOT</span>
-        <span id="aim-label">CENTRE</span>
-      </div>
-
-      <div class="aim-buttons">
-        <button class="aim-btn" data-aim="left">LEFT</button>
-        <button class="aim-btn active" data-aim="center">CENTRE</button>
-        <button class="aim-btn" data-aim="right">RIGHT</button>
-      </div>
-
-      <div class="power-section">
-        <div class="power-label">
-          <span>SHOT POWER</span>
-          <strong id="power-value">60%</strong>
-        </div>
-        <input id="power-control" type="range" min="10" max="100" value="60">
-      </div>
-
-      <button id="shoot-btn" class="primary-btn shoot-btn">
-        SHOOT NOW <span>⚽</span>
-      </button>
-
-      <p class="instruction">Choose your direction and power, then shoot!</p>
-    </div>
-  </section>
-
-  <section id="result-screen" class="screen result-screen hidden">
-    <span class="eyebrow">SHOOTOUT COMPLETE</span>
-    <h2 id="result-title">FULL TIME!</h2>
-    <p id="result-message">Great effort!</p>
-
-    <div class="final-score">
-      <span>FINAL SCORE</span>
-      <strong id="final-score">0 / 5</strong>
-    </div>
-
-    <button id="restart-btn" class="primary-btn">
-      PLAY AGAIN <span>↻</span>
-    </button>
-  </section>
-</main>
-
-<footer>
-  <span>ULTIMATE PENALTY</span>
-  <span>CREATED BY AYANFE INNOVATION LABS LIMITED</span>
-</footer>
-
-  </div>  <script type="module" src="/src/main.js"></script></body>
+</body>
 </html>
